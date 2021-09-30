@@ -1,3 +1,12 @@
+# TODO
+- Move state to localstorage
+- Finish menu implementation with test data
+	- Section list
+	- Section contents
+	- Item details/options (including add to cart buttons)
+- Implement cart component
+- Implement checkout page
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
