@@ -107,7 +107,7 @@ const its = [
     },
     {
         "section": 1,
-        "name": "Shrimp Bomb",
+        "name": "Grilled Eggplant & Tahini Dip",
         "img": "http://localhost:8000/media/images/default.jpg",
         "description": "",
         "price": 0.0,
@@ -124,7 +124,7 @@ const its = [
     },
     {
         "section": 2,
-        "name": "Shrimp Bomb",
+        "name": "Ahi Poke Stack",
         "img": "http://localhost:8000/media/images/default.jpg",
         "description": "",
         "price": 0.0,

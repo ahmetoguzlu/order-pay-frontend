@@ -1,5 +1,4 @@
 # TODO
-- Move state to localstorage
 - Finish menu implementation with test data
 	- Section list
 	- Section contents
