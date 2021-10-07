@@ -52,7 +52,8 @@ const its = [
         "section": 1,
         "name": "Shrimp Bomb - Full",
         "img": "http://localhost:8000/media/images/default.jpg",
-        "description": "Some description here",
+        "description": "Some description. Lorem Ipsum is simply dummy text of the printing and typesetting industry.\
+                        Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
         "price": 5.7,
         "options_binary": [
             "Binary Option 1",

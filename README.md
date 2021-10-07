@@ -1,7 +1,5 @@
 # TODO
 - Finish menu implementation with test data
-	- Section list
-	- Section contents
 	- Item details/options (including add to cart buttons)
 - Implement cart component
 - Implement checkout page

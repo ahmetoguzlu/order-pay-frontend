@@ -22,7 +22,7 @@
   /*background-color: black;*/
 }
 
-.section-header {
+.sub-header {
   position: fixed;
   z-index: 1;
   background-color: #FFDEAD;
@@ -37,16 +37,16 @@
   box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px;
 }
 
-.section-header-place-holder {
+.sub-header-place-holder {
   height: 2rem;
 }
 
-.section-header-back {
+.sub-header-back {
   position: absolute;
   margin-left: 0.5rem;
 }
 
-.section-header-title {
+.sub-header-title {
   margin: 0 auto;
 }
 
@@ -78,6 +78,10 @@
 }
 
 .item-price {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   float: right;
+}
+
+.item-detail-image {
+  padding: 0;
 }
