@@ -40,105 +40,51 @@ const sects = [
 const its = [
     {
         "section": 1,
-        "name": "Shrimp Bomb - Empty",
+        "name": "Shrimp Bomb",
         "img": "http://localhost:8000/media/images/default.jpg",
-        "description": "",
-        "price": 5.73,
-        "options_binary": [],
-        "options_selection": {},
-        "pk": 1
-    },
-    {
-        "section": 1,
-        "name": "Shrimp Bomb - Full",
-        "img": "http://localhost:8000/media/images/default.jpg",
-        "description": "Some description. Lorem Ipsum is simply dummy text of the printing and typesetting industry.\
-                        Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
+        "description": "Marine edilmis karidesler, aci sevenler icin ozel uretilmis \
+                        gurme bir sosla uzerinde peynir ve maydanoz serpistirilerek servis edilir.",
         "price": 5.7,
-        "options_binary": [
-            "Binary Option 1",
-            "Binary Option 2",
-            "Binary Option 3",
+        "warnings": [
+            "Kabuklu deniz mahsulu icerir!"
         ],
-        "options_selection": {
-            "selection 1": [
-                "otp1",
-                "opt2"
-            ],
-            "selection 2": [
-                "otp1",
-                "opt2"
-            ],
-        },
-        "pk": 2
-    },
-    {
-        "section": 1,
-        "name": "Shrimp Bomb",
-        "img": "http://localhost:8000/media/images/default.jpg",
-        "description": "",
-        "price": 0.0,
-        "options_binary": [
-            "Add Extra Sauce"
+        "options": [
+            {
+                "header_text": "Eklemeler",
+                "type": "checkbox",
+                "items": {
+                    "Ekstra Karides": 1.3,
+                    "Ekstra Sos": 0.32,
+                },
+            },
+            {
+                "header_text": "Cikartilacaklar",
+                "type": "checkbox",
+                "items": {
+                    "Karidessiz": 0,
+                    "Ozel Aci Sossuz": 0,
+                    "Peynirsiz": 0,
+                    "Maydanozsuz": 0,
+                },
+            },
+            {
+                "header_text": "Sos 1",
+                "type": "radio",
+                "items": {
+                    "Aci sos": 0,
+                    "Super aci sos": 0.2,
+                },
+            },
+            {
+                "header_text": "Sos 2",
+                "type": "radio",
+                "items": {
+                    "Aci sos": 0,
+                    "Super aci sos": 0.2,
+                },
+            },
         ],
-        "options_selection": {
-            "sauce": [
-                "hot",
-                "mild"
-            ]
-        },
-        "pk": 3
-    },
-    {
-        "section": 1,
-        "name": "Shrimp Bomb",
-        "img": "http://localhost:8000/media/images/default.jpg",
-        "description": "",
-        "price": 0.0,
-        "options_binary": [
-            "Add Extra Sauce"
-        ],
-        "options_selection": {
-            "sauce": [
-                "hot",
-                "mild"
-            ]
-        },
-        "pk": 4
-    },
-    {
-        "section": 1,
-        "name": "Grilled Eggplant & Tahini Dip",
-        "img": "http://localhost:8000/media/images/default.jpg",
-        "description": "",
-        "price": 0.0,
-        "options_binary": [
-            "Add Extra Sauce"
-        ],
-        "options_selection": {
-            "sauce": [
-                "hot",
-                "mild"
-            ]
-        },
-        "pk": 5
-    },
-    {
-        "section": 2,
-        "name": "Ahi Poke Stack",
-        "img": "http://localhost:8000/media/images/default.jpg",
-        "description": "",
-        "price": 0.0,
-        "options_binary": [
-            "Add Extra Sauce"
-        ],
-        "options_selection": {
-            "sauce": [
-                "hot",
-                "mild"
-            ]
-        },
-        "pk": 6
+        "pk": 1
     },
 ];
 

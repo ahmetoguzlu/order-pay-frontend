@@ -2,9 +2,13 @@
   scroll-behavior: auto;
 }
 
+.main-stack {
+  overflow-y: auto;
+}
+
 .main-header {
   position: fixed;
-  z-index: 1;
+  z-index: 2;
   background-color: orange;
   text-align: center;
   width: 100vw;
@@ -82,6 +86,71 @@
   float: right;
 }
 
-.item-detail-image {
+.item-form-image {
+  padding-top: 1rem;
+}
+
+.item-form {
   padding: 0;
+  margin-bottom: 0;
+  /*height: 10rem;*/
+  overflow: auto;
+}
+
+.item-option {
+  width: 90%;
+}
+
+.item-option-label {
+  padding: 0.25rem;
+}
+
+.item-option-price {
+  float: right;
+}
+
+.item-form-special-instructions {
+  margin: 0 auto;
+  width: 95%;
+  margin-bottom: 0.5rem;
+}
+
+.buffer-row {
+  height: 10rem;
+}
+
+.cart-add {
+  padding: 1rem;
+  background-color: white;
+  text-align: center;
+
+  box-shadow: rgba(50, 50, 93, 0.25) 0px -6px 12px -2px;
+}
+
+.cart-add-button-color {
+  background-color: orange;
+}
+
+.cart-add-count-col {
+  padding: 0;
+}
+
+.cart-add-increase {
+  /*border-radius: 50%;*/
+  font-weight: 900;
+}
+
+.cart-add-decrease {
+  /*border-radius: 50%;*/
+  font-weight: 900;
+}
+
+.cart-add-count {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+
+.cart-add-button {
+  width: 100%;
+  margin: 0;
 }

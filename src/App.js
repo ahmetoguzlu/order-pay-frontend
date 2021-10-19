@@ -12,6 +12,8 @@ import {
         Image,
         CloseButton,
         Form,
+        Accordion,
+        Button,
        } from 'react-bootstrap';
 
 
@@ -23,6 +25,8 @@ class App extends Component {
       items: its,
       viewSection: null,
       viewItem: null,
+      viewItemCount: 1,
+      cartContents: {},
     };
   }
 
@@ -32,6 +36,7 @@ class App extends Component {
       items: ls.get('items') || its,
       viewSection: ls.get('viewSection') || null,
       viewItem: ls.get('viewItem') || null,
+      cartContents: ls.get('cartContents') || {},
     });
   }
 
@@ -51,6 +56,7 @@ class App extends Component {
     ls.set('viewSection', null);
   };
 
+// Helpers for rendering pages
   renderMainHeader = () => {
     return (
       <div className="main-header-place-holder">
@@ -74,6 +80,19 @@ class App extends Component {
       )
   };
 
+  renderItemOptionPrice = (price) => {
+    if (price == 0) {
+      return;
+    } else {
+      return (
+        <span className="item-option-price">${price.toFixed(2)}</span>
+      )
+    }
+  };
+
+
+
+// Rendering pages
   renderSectionList = () => {
     return (
       <Stack>
@@ -128,7 +147,7 @@ class App extends Component {
 
   renderItem = () => {
     return (
-      <Stack>
+      <Stack className="main-stack">
         {this.renderMainHeader()}
 
         {this.renderSubHeader(
@@ -138,36 +157,64 @@ class App extends Component {
 
         <Container>
           <Row>
-            <Image className="item-detail-image" src={picture}/>
+            <Image className="item-form-image" src={picture}/>
           </Row>
           <Row>
             <p>{this.state.viewItem.description}</p>
           </Row>
           <Row>
-            <Form>
-              {this.state.viewItem.options_binary
-                    .map((binOpt) => (
-                      <Form.Check
-                        type="checkbox"
-                        label={binOpt}/>
-                ))}
-              {Object.keys(this.state.viewItem.options_selection)
-                      .map((key) => {
-                        return (<div>
-                          <Form.Control plaintext readOnly defaultValue={key} />
-                          {this.state.viewItem.options_selection[key]
-                            .map((opt) => {
-                              return (
-                                <Form.Check
-                                  type="radio"
-                                  label={opt}
-                                  name={key}/>
-                                )
-                            })}
-                          </div>
+            <Form className="item-form" id="item-form" onSubmit={this.addToCart}>
+              <Accordion defaultActiveKey="0">
+                {this.state.viewItem.options
+                      .map((opt, index) => {
+                        return (
+                          <Accordion.Item eventKey={index.toString()}>
+                            <Accordion.Header>{opt['header_text']}</Accordion.Header>
+                            <Accordion.Body>
+                              {Object.keys(opt['items']).map((key) => {
+                                return (
+                                  <Form.Check>
+                                    <Form.Check.Input type={opt['type']} name={opt['header_text']}/>
+                                    <Form.Check.Label className="item-option">
+                                      <span className="item-option-label">{key}</span>
+                                      {this.renderItemOptionPrice(opt['items'][key])}
+                                    </Form.Check.Label>
+                                  </Form.Check>
+                                  )
+                              })}
+                            </Accordion.Body>
+                          </Accordion.Item>
                           )
-                      })}
+                      })
+                }
+
+                <br/>
+                <Form.Control className="item-form-special-instructions" 
+                              as="textarea"
+                              type="text"
+                              placeholder="Ozel istekleriniz..." />
+
+              </Accordion>
             </Form>
+          </Row>
+          <Row className="buffer-row"/>
+          <Row className="fixed-bottom cart-add">
+            <Col className="cart-add-count-col" xs={4} sm={4}>
+              <Button className="cart-add-decrease cart-add-button-color"
+                      onClick={this.decreaseViewItemCount}
+              >-</Button>
+              <span className="cart-add-count">{this.state.viewItemCount}</span>
+              <Button className="cart-add-increase cart-add-button-color"
+                      onClick={this.increaseViewItemCount}
+              >+</Button>
+            </Col>
+            <Col xs={8} sm={8}>
+              <Button className="cart-add-button cart-add-button-color" 
+                      type="submit" 
+                      form="item-form">
+                Hesaba Ekle
+              </Button>  
+            </Col>
           </Row>
         </Container>
       </Stack>
@@ -196,6 +243,59 @@ class App extends Component {
     return this.state.items
             .filter((item) => item.section == section.pk);
   }
+
+  increaseViewItemCount = () => {
+    let newCount = this.state.viewItemCount + 1;
+    this.setState({viewItemCount: newCount});
+  };
+
+  decreaseViewItemCount = () => {
+    let newCount = this.state.viewItemCount <= 1 ? 1 : this.state.viewItemCount - 1;
+    this.setState({viewItemCount: newCount});
+  };
+
+  addToCart = (e) => {
+    e.preventDefault();
+    // console.log(e.target.elements);
+    let cartItem = {}
+    cartItem['initialPrice'] = this.state.viewItem.price;
+    cartItem['optionsPrice'] = 0;
+    cartItem['options'] = {};
+
+    // Checked options
+    for (let i = 0; i < e.target.elements.length; i++) {
+      let elem = e.target.elements.item(i);
+
+      if (elem.tagName == "INPUT" && elem.checked){
+        let optionName = elem.nextSibling.children.item(0).textContent;
+        let optionPrice = 0;
+        if (elem.nextSibling.children.item(1)) {
+          optionPrice = parseFloat(elem.nextSibling.children.item(1).textContent.substring(1));
+        }
+
+        cartItem['options'][optionName] = optionPrice;
+        cartItem['optionsPrice'] += optionPrice;
+      }
+
+      // Special Instructions
+      if (elem.tagName == "TEXTAREA"){
+        if (elem.value != '') {
+          cartItem['specialInstructions'] = elem.value;
+        }
+      }
+      
+    }
+
+    cartItem['totalPrice'] = cartItem['initialPrice'] + cartItem['optionsPrice'];
+
+    let newCartContents = this.state.cartContents;
+    newCartContents[this.state.viewItem.name] = cartItem;
+
+    this.setState({cartContents: newCartContents});
+
+    // IMPORTANT!!! UNCOMMENT BELOW AFTER IMPLEMENTING DELETING THINGS FROM CART!!!
+    // ls.set('cartContents', newCartContents);
+  };
 }
 
 export default App;

@@ -1,6 +1,6 @@
 # TODO
 - Finish menu implementation with test data
-	- Item details/options (including add to cart buttons)
+	- Item details/options (ADD ITEM COUNT AS WELL!!)
 - Implement cart component
 - Implement checkout page
 
