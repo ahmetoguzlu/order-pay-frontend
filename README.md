@@ -1,8 +1,7 @@
 # TODO
-- Finish menu implementation with test data
-	- Item details/options (ADD ITEM COUNT AS WELL!!)
-- Implement cart component
-- Implement checkout page
+- Implement Item details/options form validation!!!
+- Implement close tab/checkout
+- Store Cart data on the backend!!! Watch what you store on local storage!!!
 
 # Getting Started with Create React App
 

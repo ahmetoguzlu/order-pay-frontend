@@ -119,7 +119,7 @@
   height: 10rem;
 }
 
-.cart-add {
+.order-add {
   padding: 1rem;
   background-color: white;
   text-align: center;
@@ -127,30 +127,65 @@
   box-shadow: rgba(50, 50, 93, 0.25) 0px -6px 12px -2px;
 }
 
-.cart-add-button-color {
+.order-add-button-color {
   background-color: orange;
 }
 
-.cart-add-count-col {
+.order-add-count-col {
   padding: 0;
 }
 
-.cart-add-increase {
+.order-add-increase {
   /*border-radius: 50%;*/
   font-weight: 900;
 }
 
-.cart-add-decrease {
+.order-add-decrease {
   /*border-radius: 50%;*/
   font-weight: 900;
 }
 
-.cart-add-count {
+.order-add-count {
   margin-left: 1rem;
   margin-right: 1rem;
 }
 
-.cart-add-button {
+.order-add-button {
   width: 100%;
   margin: 0;
+  font-weight: 700;
+}
+
+.order-review-option-price {
+  float: right;
+}
+
+.order-review-total-price {
+  float: right;
+}
+
+.go-to-checkout {
+  padding: 1rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  background-color: white;
+
+  box-shadow: rgba(50, 50, 93, 0.25) 0px -6px 12px -2px;
+}
+
+.go-to-checkout-button {
+  font-weight: 700;
+}
+
+.payment-options {
+  padding: 1rem;
+  background-color: white;
+  text-align: center;
+
+  box-shadow: rgba(50, 50, 93, 0.25) 0px -6px 12px -2px;
+}
+
+.payment-options-button {
+  width: 100%;
+  font-weight: 700;
 }

@@ -14,6 +14,8 @@ import {
         Form,
         Accordion,
         Button,
+        ListGroup,
+        Modal,
        } from 'react-bootstrap';
 
 
@@ -26,7 +28,14 @@ class App extends Component {
       viewSection: null,
       viewItem: null,
       viewItemCount: 1,
-      cartContents: {},
+      orderContents: {},
+      showOrderReview: false,
+      showConfirmation: false,
+      showCheckout: false,
+
+
+      // IMPORTANT: Backend should keep track of the itemized bill
+      billContents: {},
     };
   }
 
@@ -36,25 +45,57 @@ class App extends Component {
       items: ls.get('items') || its,
       viewSection: ls.get('viewSection') || null,
       viewItem: ls.get('viewItem') || null,
-      cartContents: ls.get('cartContents') || {},
+      billContents: ls.get('billContents') || {},
+      showCheckout: ls.get('showCheckout') || false,
     });
   }
 
   displaySection = (section) => {
     this.setState({viewSection: section,
-                    viewItem: null});
+                    viewItem: null,
+                    showCheckout: false});
 
     ls.set('viewSection', section);
     ls.set('viewItem', null);
+    ls.set('showCheckout', false);
   };
 
   displayItem = (item) => {
     this.setState({viewItem: item,
-                    viewSection: null});
+                    viewItemCount: 1,
+                    viewSection: null,
+                    showCheckout: false});
 
     ls.set('viewItem', item);
     ls.set('viewSection', null);
+    ls.set('showCheckout', false);
   };
+
+  displayCheckout = () => {
+    this.setState({showCheckout: true,
+                    viewSection: null,
+                    viewItem: null});
+
+    ls.set('showCheckout', true);
+    ls.set('viewItem', null);
+    ls.set('viewSection', null);
+  };
+
+  toggleOrderReview = () => {
+    let curr = this.state.showOrderReview;
+    this.setState({showOrderReview: !curr});
+  }
+
+  // closeOrderConfirmation = () => {
+  //   let curr = this.state.showOrderConfirmation;
+  //   this.setState({showOrderConfirmation: !curr});
+  //   this.displaySection(this.getSectionFromItem(this.state.viewItem));
+  // }
+
+  toggleConfirmation = () => {
+    let curr = this.state.showConfirmation;
+    this.setState({showConfirmation: !curr});
+  }
 
 // Helpers for rendering pages
   renderMainHeader = () => {
@@ -70,9 +111,8 @@ class App extends Component {
   renderSubHeader = (onclickFunc, title) => {
     return (
       <div className="sub-header-place-holder">
-          <div className="sub-header">
+          <div className="sub-header" onClick={onclickFunc}>
             <span className="sub-header-back"
-                  onClick={onclickFunc}
             >{"<"}</span>
             <span className="sub-header-title">{title}</span>
           </div>
@@ -88,6 +128,92 @@ class App extends Component {
         <span className="item-option-price">${price.toFixed(2)}</span>
       )
     }
+  };
+
+  renderOrderReview = () => {
+    return (
+      <Modal show={this.state.showOrderReview} onHide={this.cancelOrder} animation={true}>
+        <Modal.Header closeButton>
+          <Modal.Title>Siparis Ozeti</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {this.state.showOrderReview ? 
+            <div>
+              <h5>{this.state.orderContents.itemName}</h5>
+              {Object.keys(this.state.orderContents['options']).map((optKey) => (
+                  <div>
+                    <span>{optKey}</span>
+                    {this.state.orderContents['options'][optKey] > 0 ?
+                      <span className="order-review-option-price">
+                        +${this.state.orderContents['options'][optKey].toFixed(2)}
+                      </span> : null}
+                  </div>
+                ))}
+              {Object.keys(this.state.orderContents).includes('specialInstructions') ?
+                <div>
+                  <br/>
+                  <p>Ozel Istekler: {this.state.orderContents['specialInstructions']}</p>
+                </div>
+                : null
+              }
+              <br/>
+              <div>
+                <span>Adet: {this.state.orderContents['count']}</span>
+                <span className="order-review-total-price">
+                  Toplam: ${this.state.orderContents['totalPrice'].toFixed(2)}
+                </span>
+              </div>
+            </div> : null}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button className="order-review-submit-button" onClick={this.submitOrder}>
+            Siparisi Onayla
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    )
+  };
+
+  renderConfirmation = (msg, onClose) => {
+    return (
+      <Modal show={this.state.showConfirmation} onHide={onClose} animation={true}>
+        <Modal.Header closeButton>
+          <Modal.Title>{msg}</Modal.Title>
+        </Modal.Header>
+      </Modal>
+      )
+  };
+
+  renderGoToCheckout = () => {
+    if (Object.keys(this.state.billContents).length > 0) {
+      return (
+        <Row className="fixed-bottom go-to-checkout">
+            <Button className="go-to-checkout-button order-add-button-color" 
+                    type="button"
+                    onClick={this.displayCheckout}>
+              Hesabi Kapat
+            </Button>  
+        </Row>
+      )
+    }
+  };
+
+  renderPaymentOptions = () => {
+    return (
+      <Row className="fixed-bottom payment-options">
+        <Col xs={6} sm={6}>
+          <Button className="payment-options-button order-add-button-color"
+                  onClick={this.toggleConfirmation}>
+            Nakit Ode
+          </Button>  
+        </Col>
+        <Col xs={6} sm={6}>
+          <Button className="payment-options-button order-add-button-color">
+            Kartla Ode
+          </Button>  
+        </Col>
+      </Row>
+    )
   };
 
 
@@ -110,6 +236,8 @@ class App extends Component {
               </Col>
             ))}
           </Row>
+          <Row className="buffer-row"/>
+          {this.renderGoToCheckout()}
         </Container>
       </Stack>
     )
@@ -140,6 +268,8 @@ class App extends Component {
                     </Col>
               ))}
           </Row>
+          <Row className="buffer-row"/>
+          {this.renderGoToCheckout()}
         </Container>
       </Stack>
     );
@@ -155,6 +285,14 @@ class App extends Component {
           this.state.viewItem.name
           )}
 
+        {this.renderOrderReview()}
+        {this.renderConfirmation("Siparis basariyla alindi!", 
+                                  () => {
+                                    this.toggleConfirmation(); 
+                                    this.displaySection(this.getSectionFromItem(this.state.viewItem));
+                                  })}
+
+
         <Container>
           <Row>
             <Image className="item-form-image" src={picture}/>
@@ -163,7 +301,7 @@ class App extends Component {
             <p>{this.state.viewItem.description}</p>
           </Row>
           <Row>
-            <Form className="item-form" id="item-form" onSubmit={this.addToCart}>
+            <Form className="item-form" id="item-form" onSubmit={this.reviewOrder}>
               <Accordion defaultActiveKey="0">
                 {this.state.viewItem.options
                       .map((opt, index) => {
@@ -198,21 +336,21 @@ class App extends Component {
             </Form>
           </Row>
           <Row className="buffer-row"/>
-          <Row className="fixed-bottom cart-add">
-            <Col className="cart-add-count-col" xs={4} sm={4}>
-              <Button className="cart-add-decrease cart-add-button-color"
+          <Row className="fixed-bottom order-add">
+            <Col className="order-add-count-col" xs={4} sm={4}>
+              <Button className="order-add-decrease order-add-button-color"
                       onClick={this.decreaseViewItemCount}
               >-</Button>
-              <span className="cart-add-count">{this.state.viewItemCount}</span>
-              <Button className="cart-add-increase cart-add-button-color"
+              <span className="order-add-count">{this.state.viewItemCount}</span>
+              <Button className="order-add-increase order-add-button-color"
                       onClick={this.increaseViewItemCount}
               >+</Button>
             </Col>
             <Col xs={8} sm={8}>
-              <Button className="cart-add-button cart-add-button-color" 
+              <Button className="order-add-button order-add-button-color" 
                       type="submit" 
                       form="item-form">
-                Hesaba Ekle
+                Siparis Ver
               </Button>  
             </Col>
           </Row>
@@ -221,14 +359,65 @@ class App extends Component {
       )
   }
 
+  renderCheckout = () => {
+    return (
+      <Stack>
+        {this.renderMainHeader()}
+        {this.renderSubHeader(() => this.displaySection(null), "Ana Menu")}
+
+        {this.renderConfirmation("Nakit odeme icin garson yonlendirildi!", 
+                                  () => {
+                                    this.toggleConfirmation();
+                                    this.displaySection(null);
+                                  })}
+
+
+
+        <Container className="content-container">
+          <Row>
+            <ListGroup variant="flush">
+              {Object.keys(this.state.billContents).map((key) => (
+                <ListGroup.Item>
+                  <div>
+                    <h5>{this.state.billContents[key].itemName}</h5>
+                    {Object.keys(this.state.billContents[key]['options']).map((optKey) => (
+                        <div>
+                          <span>{optKey}</span>
+                          {this.state.billContents[key]['options'][optKey] > 0 ?
+                            <span className="order-review-option-price">
+                              +${this.state.billContents[key]['options'][optKey].toFixed(2)}
+                            </span> : null}
+                        </div>
+                      ))}
+                    <br/>
+                    <div>
+                      <span>Adet: {this.state.billContents[key]['count']}</span>
+                      <span className="order-review-total-price">
+                        Toplam: ${this.state.billContents[key]['totalPrice'].toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </Row>
+          <Row className="buffer-row"/>
+          {this.renderPaymentOptions()}
+        </Container>
+      </Stack>
+      )
+  }
+
   render() {
     window.scrollTo(0,0);
-    if (this.state.viewSection == null && this.state.viewItem == null) {
+    if (this.state.viewSection == null && this.state.viewItem == null && this.state.showCheckout == false) {
       return this.renderSectionList();
     } else if (this.state.viewSection != null) {
       return this.renderSection();
     } else if (this.state.viewItem != null) {
       return this.renderItem();
+    } else if (this.state.showCheckout) {
+      return this.renderCheckout();
     }
   }
 
@@ -254,13 +443,15 @@ class App extends Component {
     this.setState({viewItemCount: newCount});
   };
 
-  addToCart = (e) => {
+  reviewOrder = (e) => {
     e.preventDefault();
-    // console.log(e.target.elements);
-    let cartItem = {}
-    cartItem['initialPrice'] = this.state.viewItem.price;
-    cartItem['optionsPrice'] = 0;
-    cartItem['options'] = {};
+
+    let orderDetails = {}
+    orderDetails['itemName'] = this.state.viewItem.name;
+    orderDetails['initialPrice'] = this.state.viewItem.price;
+    orderDetails['optionsPrice'] = 0;
+    orderDetails['options'] = {};
+    orderDetails['count'] = this.state.viewItemCount;
 
     // Checked options
     for (let i = 0; i < e.target.elements.length; i++) {
@@ -273,28 +464,40 @@ class App extends Component {
           optionPrice = parseFloat(elem.nextSibling.children.item(1).textContent.substring(1));
         }
 
-        cartItem['options'][optionName] = optionPrice;
-        cartItem['optionsPrice'] += optionPrice;
+        orderDetails['options'][optionName] = optionPrice;
+        orderDetails['optionsPrice'] += optionPrice;
       }
 
       // Special Instructions
       if (elem.tagName == "TEXTAREA"){
         if (elem.value != '') {
-          cartItem['specialInstructions'] = elem.value;
+          orderDetails['specialInstructions'] = elem.value;
         }
       }
       
     }
 
-    cartItem['totalPrice'] = cartItem['initialPrice'] + cartItem['optionsPrice'];
+    orderDetails['unitPrice'] = orderDetails['initialPrice'] + orderDetails['optionsPrice'];
+    orderDetails['totalPrice'] = orderDetails['unitPrice'] * orderDetails['count'];
 
-    let newCartContents = this.state.cartContents;
-    newCartContents[this.state.viewItem.name] = cartItem;
+    this.setState({orderContents: orderDetails});
+    this.toggleOrderReview();
+  };
 
-    this.setState({cartContents: newCartContents});
+  cancelOrder = () => {
+    this.setState({orderContents: {}});
+    this.toggleOrderReview();
+  }
 
-    // IMPORTANT!!! UNCOMMENT BELOW AFTER IMPLEMENTING DELETING THINGS FROM CART!!!
-    // ls.set('cartContents', newCartContents);
+  submitOrder = () => {
+    let newBill = this.state.billContents;
+    newBill[Object.keys(newBill).length] = this.state.orderContents;
+    this.setState({orderContents: {},
+                    billContents: newBill});
+    ls.set('billContents', newBill);
+
+    this.toggleOrderReview();
+    this.toggleConfirmation();
   };
 }
 
