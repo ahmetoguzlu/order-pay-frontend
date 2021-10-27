@@ -48,8 +48,8 @@ const its = [
         "warnings": [
             "Kabuklu deniz mahsulu icerir!"
         ],
-        "options": [
-            {
+        "options": {
+            "Eklemeler": {
                 "header_text": "Eklemeler",
                 "type": "checkbox",
                 "items": {
@@ -57,7 +57,7 @@ const its = [
                     "Ekstra Sos": 0.32,
                 },
             },
-            {
+            "Cikartilacaklar": {
                 "header_text": "Cikartilacaklar",
                 "type": "checkbox",
                 "items": {
@@ -67,7 +67,7 @@ const its = [
                     "Maydanozsuz": 0,
                 },
             },
-            {
+            "Sos 1": {
                 "header_text": "Sos 1",
                 "type": "radio",
                 "items": {
@@ -75,7 +75,7 @@ const its = [
                     "Super aci sos": 0.2,
                 },
             },
-            {
+            "Sos 2": {
                 "header_text": "Sos 2",
                 "type": "radio",
                 "items": {
@@ -83,7 +83,7 @@ const its = [
                     "Super aci sos": 0.2,
                 },
             },
-        ],
+        },
         "pk": 1
     },
 ];

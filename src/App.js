@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState, useEffect } from "react";
 import {sects, its} from "./TestData.js" // Test data, remove when not needed
 import "./App.css";
 import picture from "./default.jpg";
@@ -27,8 +27,8 @@ class App extends Component {
       items: its,
       viewSection: null,
       viewItem: null,
-      viewItemCount: 1,
       orderContents: {},
+      requiredOptions: {},
       showOrderReview: false,
       showConfirmation: false,
       showCheckout: false,
@@ -37,6 +37,8 @@ class App extends Component {
       // IMPORTANT: Backend should keep track of the itemized bill
       billContents: {},
     };
+
+    this.viewItemCount = null;
   }
 
   componentDidMount() {
@@ -62,7 +64,6 @@ class App extends Component {
 
   displayItem = (item) => {
     this.setState({viewItem: item,
-                    viewItemCount: 1,
                     viewSection: null,
                     showCheckout: false});
 
@@ -130,6 +131,17 @@ class App extends Component {
     }
   };
 
+  renderOptionLabel = (opt) => {
+    let label = null;
+
+    if (opt['count'] == 1) {
+      label = opt['name'];
+    }
+    return (
+      <span>{opt['name']}{opt['count'] > 1 ? ' x' + opt['count'] : null}</span>
+      );
+  }
+
   renderOrderReview = () => {
     return (
       <Modal show={this.state.showOrderReview} onHide={this.cancelOrder} animation={true}>
@@ -142,10 +154,11 @@ class App extends Component {
               <h5>{this.state.orderContents.itemName}</h5>
               {Object.keys(this.state.orderContents['options']).map((optKey) => (
                   <div>
-                    <span>{optKey}</span>
-                    {this.state.orderContents['options'][optKey] > 0 ?
+                    {this.renderOptionLabel(this.state.orderContents['options'][optKey])}
+                    {this.state.orderContents['options'][optKey]['price'] > 0 ?
                       <span className="order-review-option-price">
-                        +${this.state.orderContents['options'][optKey].toFixed(2)}
+                        +${(this.state.orderContents['options'][optKey]['price']
+                            * this.state.orderContents['options'][optKey]['count']).toFixed(2)}
                       </span> : null}
                   </div>
                 ))}
@@ -303,11 +316,15 @@ class App extends Component {
           <Row>
             <Form className="item-form" id="item-form" onSubmit={this.reviewOrder}>
               <Accordion defaultActiveKey="0">
-                {this.state.viewItem.options
+                {Object.values(this.state.viewItem.options)
                       .map((opt, index) => {
                         return (
                           <Accordion.Item eventKey={index.toString()}>
-                            <Accordion.Header>{opt['header_text']}</Accordion.Header>
+                            <Accordion.Header
+                              className={this.state.requiredOptions[opt["header_text"]] == false ? "invalid-item-option" : ""}
+                            >
+                              {opt['header_text']}
+                            </Accordion.Header>
                             <Accordion.Body>
                               {Object.keys(opt['items']).map((key) => {
                                 return (
@@ -317,6 +334,7 @@ class App extends Component {
                                       <span className="item-option-label">{key}</span>
                                       {this.renderItemOptionPrice(opt['items'][key])}
                                     </Form.Check.Label>
+                                    <Form.Control.Feedback type="invalid" tooltip="true">TEST FEEDBACK</Form.Control.Feedback>
                                   </Form.Check>
                                   )
                               })}
@@ -338,13 +356,7 @@ class App extends Component {
           <Row className="buffer-row"/>
           <Row className="fixed-bottom order-add">
             <Col className="order-add-count-col" xs={4} sm={4}>
-              <Button className="order-add-decrease order-add-button-color"
-                      onClick={this.decreaseViewItemCount}
-              >-</Button>
-              <span className="order-add-count">{this.state.viewItemCount}</span>
-              <Button className="order-add-increase order-add-button-color"
-                      onClick={this.increaseViewItemCount}
-              >+</Button>
+              <ItemCountGroup onChange={(count) => this.viewItemCount = count}/> 
             </Col>
             <Col xs={8} sm={8}>
               <Button className="order-add-button order-add-button-color" 
@@ -382,10 +394,10 @@ class App extends Component {
                     <h5>{this.state.billContents[key].itemName}</h5>
                     {Object.keys(this.state.billContents[key]['options']).map((optKey) => (
                         <div>
-                          <span>{optKey}</span>
-                          {this.state.billContents[key]['options'][optKey] > 0 ?
+                          {this.renderOptionLabel(this.state.billContents[key]['options'][optKey])}
+                          {this.state.billContents[key]['options'][optKey]['price'] > 0 ?
                             <span className="order-review-option-price">
-                              +${this.state.billContents[key]['options'][optKey].toFixed(2)}
+                              +${this.state.billContents[key]['options'][optKey]['price'].toFixed(2)}
                             </span> : null}
                         </div>
                       ))}
@@ -433,25 +445,45 @@ class App extends Component {
             .filter((item) => item.section == section.pk);
   }
 
-  increaseViewItemCount = () => {
-    let newCount = this.state.viewItemCount + 1;
-    this.setState({viewItemCount: newCount});
-  };
-
-  decreaseViewItemCount = () => {
-    let newCount = this.state.viewItemCount <= 1 ? 1 : this.state.viewItemCount - 1;
-    this.setState({viewItemCount: newCount});
-  };
-
   reviewOrder = (e) => {
     e.preventDefault();
+
+    let invalidInput = false;
+    let newReqOpts = {}
+
+    // Validate inputs
+    for (let i = 0; i < Object.keys(e.target.elements).length; i++) {
+      let name = Object.keys(e.target.elements)[i];
+      if (Object.keys(this.state.viewItem.options).includes(name)) {
+        let opt = this.state.viewItem.options[name];
+
+        // Currently only radio types are required
+        if (opt.type == "radio") {
+          newReqOpts[name] = false;
+          for (let j=0; j < e.target.elements[name].length; j++) {
+            if (e.target.elements[name][j].checked) {
+              newReqOpts[name] = true;
+            }
+          }
+
+          if (!newReqOpts[name]) {
+            invalidInput = true;
+          }
+        }
+      }
+    }
+
+    if (invalidInput) {
+      this.setState({requiredOptions: newReqOpts});
+      return;
+    }
 
     let orderDetails = {}
     orderDetails['itemName'] = this.state.viewItem.name;
     orderDetails['initialPrice'] = this.state.viewItem.price;
     orderDetails['optionsPrice'] = 0;
     orderDetails['options'] = {};
-    orderDetails['count'] = this.state.viewItemCount;
+    orderDetails['count'] = this.viewItemCount;
 
     // Checked options
     for (let i = 0; i < e.target.elements.length; i++) {
@@ -464,8 +496,15 @@ class App extends Component {
           optionPrice = parseFloat(elem.nextSibling.children.item(1).textContent.substring(1));
         }
 
-        orderDetails['options'][optionName] = optionPrice;
-        orderDetails['optionsPrice'] += optionPrice;
+        if (Object.keys(orderDetails['options']).includes(optionName)) {
+          orderDetails['options'][optionName]['count'] += 1;
+        } else {
+          orderDetails['options'][optionName] = {};
+          orderDetails['options'][optionName]['name'] = optionName;
+          orderDetails['options'][optionName]['price'] = optionPrice;
+          orderDetails['options'][optionName]['count'] = 1;
+        }
+          orderDetails['optionsPrice'] += optionPrice;
       }
 
       // Special Instructions
@@ -500,5 +539,27 @@ class App extends Component {
     this.toggleConfirmation();
   };
 }
+
+// We use a separate component to avoid re-rendering of whole page when count chages
+// Re-rendering causes the page to scroll to top!
+function ItemCountGroup(props) {
+  const [count, setCount] = useState(1);
+
+  useEffect(() => props.onChange(count));
+
+  return (
+    <div>
+    <Button className="order-add-decrease order-add-button-color"
+                      onClick={() => setCount(count > 1 ? count - 1 : 1)}
+                      type="button"
+              >-</Button>
+              <span className="order-add-count"
+              >{count}</span>
+              <Button className="order-add-increase order-add-button-color"
+                      onClick={() => setCount(count + 1)}
+                      type="button"
+              >+</Button></div>
+  );
+  }
 
 export default App;

@@ -97,6 +97,10 @@
   overflow: auto;
 }
 
+.invalid-item-option {
+  color: red;
+}
+
 .item-option {
   width: 90%;
 }
@@ -138,16 +142,18 @@
 .order-add-increase {
   /*border-radius: 50%;*/
   font-weight: 900;
+  width: 30%;
 }
 
 .order-add-decrease {
   /*border-radius: 50%;*/
   font-weight: 900;
+  width: 30%;
 }
 
 .order-add-count {
-  margin-left: 1rem;
-  margin-right: 1rem;
+  width: 40%;
+  display: inline-block;
 }
 
 .order-add-button {

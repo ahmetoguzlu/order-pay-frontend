@@ -1,5 +1,5 @@
 # TODO
-- Implement Item details/options form validation!!!
+- Finish implementing Item details/options form validation!!!
 - Implement close tab/checkout
 - Store Cart data on the backend!!! Watch what you store on local storage!!!
 
