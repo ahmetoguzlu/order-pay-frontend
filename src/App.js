@@ -65,7 +65,8 @@ class App extends Component {
   displayItem = (item) => {
     this.setState({viewItem: item,
                     viewSection: null,
-                    showCheckout: false});
+                    showCheckout: false,
+                    requiredOptions: {}});
 
     ls.set('viewItem', item);
     ls.set('viewSection', null);
@@ -319,11 +320,12 @@ class App extends Component {
                 {Object.values(this.state.viewItem.options)
                       .map((opt, index) => {
                         return (
-                          <Accordion.Item eventKey={index.toString()}>
-                            <Accordion.Header
+                          <Accordion.Item 
                               className={this.state.requiredOptions[opt["header_text"]] == false ? "invalid-item-option" : ""}
-                            >
+                              eventKey={index.toString()}>
+                            <Accordion.Header>
                               {opt['header_text']}
+                              {this.state.requiredOptions[opt["header_text"]] == false ? " *" : null}
                             </Accordion.Header>
                             <Accordion.Body>
                               {Object.keys(opt['items']).map((key) => {
@@ -334,7 +336,6 @@ class App extends Component {
                                       <span className="item-option-label">{key}</span>
                                       {this.renderItemOptionPrice(opt['items'][key])}
                                     </Form.Check.Label>
-                                    <Form.Control.Feedback type="invalid" tooltip="true">TEST FEEDBACK</Form.Control.Feedback>
                                   </Form.Check>
                                   )
                               })}
@@ -476,6 +477,8 @@ class App extends Component {
     if (invalidInput) {
       this.setState({requiredOptions: newReqOpts});
       return;
+    } else {
+      this.setState({requiredOptions: {}})
     }
 
     let orderDetails = {}

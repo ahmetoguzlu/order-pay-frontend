@@ -98,7 +98,8 @@
 }
 
 .invalid-item-option {
-  color: red;
+  border-left: 4px solid red;
+  border-right: 4px solid red;
 }
 
 .item-option {
